@@ -264,44 +264,29 @@ class RenamerAcceptanceTests(unittest.TestCase):
         self.assertEqual(out2.count("RENAME:"), 3)
 
     # -- 16 -------------------------------------------------------------
-    def test_criterion_16_idempotent_rerun_skip(self):
-        """UNVERIFIED (Dev-flagged, confirmed by QA).
+    def test_criterion_16_idempotent_rerun_non_self_matching(self):
+        """Amended by Business (Cycle 3): pattern "*.txt", template
+        "{name}.done" -- output extension (.done) does not satisfy
+        --pattern, so renamed files cannot be re-matched by a repeat run.
+        Now unambiguously testable; unskipped.
 
-        The criterion assumes that re-running with identical args a second
-        time re-matches the SAME logical files and finds their (now
-        pre-existing) targets. But --pattern is re-evaluated against
-        whatever is on disk at invocation time: if the template's output
-        still satisfies --pattern (e.g. pattern "*.txt", template
-        "{name}_x{ext}" -- the renamed file still ends in .txt), the
-        second invocation matches the *renamed* files, not the originals,
-        and produces a NEW set of targets (e.g. a_x_x.txt) rather than
-        skipping. Empirically confirmed below: this is NOT idempotent for
-        that (very natural) choice of pattern/template, contradicting the
-        criterion's "zero files renamed on the second invocation" claim
-        for the general case. Whether criterion 16 intends a pattern that
-        is disjoint from its own template output is not specified in
-        requirements.md Sec.3 or Sec.11 item 16. Marking UNVERIFIED rather
-        than asserting either interpretation as ground truth.
+        Run 1: matches x.txt, renames it, exit 0.
+        Run 2 (identical args): x.txt no longer exists (renamed to
+        x.done, which doesn't match "*.txt"), so zero matches -> exit 4
+        per Sec.6, directory listing unchanged from after run 1.
         """
-        self._touch("a.txt")
+        self._touch("x.txt")
         code1, out1, err1 = run_cli(["--pattern", "*.txt", "--template",
-                                      "{name}_x{ext}", "--path", self.tmpdir,
-                                      "--on-collision", "skip"])
+                                      "{name}.done", "--path", self.tmpdir])
         self.assertEqual(code1, 0)
-        self.assertIn("a_x.txt", os.listdir(self.tmpdir))
+        after_run1 = sorted(os.listdir(self.tmpdir))
+        self.assertEqual(after_run1, ["x.done"])
 
         code2, out2, err2 = run_cli(["--pattern", "*.txt", "--template",
-                                      "{name}_x{ext}", "--path", self.tmpdir,
-                                      "--on-collision", "skip"])
-        # Empirical, not asserted as pass/fail: renamed again (not skipped).
-        second_run_renamed_again = "a_x_x.txt" in os.listdir(self.tmpdir)
-        self.skipTest(
-            "UNVERIFIED: criterion 16 underspecified -- pattern "
-            "'*.txt' re-matches the first run's own output, so the "
-            "second invocation renames again instead of skipping "
-            "(observed second_run_renamed_again=%r, exit=%r). See "
-            "docstring." % (second_run_renamed_again, code2)
-        )
+                                      "{name}.done", "--path", self.tmpdir])
+        self.assertEqual(code2, 4)
+        self.assertIn("NOTICE: no files matched", out2)
+        self.assertEqual(sorted(os.listdir(self.tmpdir)), after_run1)
 
     # -- 17 -------------------------------------------------------------
     def test_criterion_17_no_extension(self):
@@ -368,6 +353,73 @@ class RenamerAcceptanceTests(unittest.TestCase):
                 any(n.startswith(expected_prefix) for n in names),
                 f"no test method found for criterion {i}"
             )
+
+    # =====================================================================
+    # Regression: intra-run destination conflicts (Cycle 3 rework)
+    #
+    # Spec Sec.5: "Two matched sources mapping to the same destination is
+    # also a collision, evaluated in sequence-counter order." Two distinct
+    # source files (a1.txt, a2.txt) both render to the SAME destination
+    # (same.txt) -- there is no pre-existing file at the destination path
+    # before the run; the collision is purely between the two matches
+    # themselves. QC caught that an earlier revision missed this case.
+    # =====================================================================
+
+    def test_regression_intra_run_conflict_dry_run_detects_collision(self):
+        """Sec.4: dry-run exit code reflects what WOULD happen; a would-be
+        intra-run collision must exit 1, with zero writes."""
+        self._touch("a1.txt", content=b"A1")
+        self._touch("a2.txt", content=b"A2")
+        code, out, err = run_cli(["--pattern", "a*.txt", "--template",
+                                   "same.txt", "--path", self.tmpdir,
+                                   "--dry-run"])
+        self.assertEqual(code, 1)
+        self.assertEqual(sorted(os.listdir(self.tmpdir)), ["a1.txt", "a2.txt"])
+
+    def test_regression_intra_run_conflict_on_collision_fail(self):
+        """Sec.5 fail: stops at the second source to claim the shared
+        destination; the first rename (sequence order) is completed and
+        stays applied (no rollback), exit 3."""
+        self._touch("a1.txt", content=b"A1")
+        self._touch("a2.txt", content=b"A2")
+        code, out, err = run_cli(["--pattern", "a*.txt", "--template",
+                                   "same.txt", "--path", self.tmpdir,
+                                   "--on-collision", "fail"])
+        self.assertEqual(code, 3)
+        self.assertIn("ERROR: collision", err)
+        listing = sorted(os.listdir(self.tmpdir))
+        self.assertEqual(listing, ["a2.txt", "same.txt"])
+        with open(os.path.join(self.tmpdir, "same.txt"), "rb") as f:
+            self.assertEqual(f.read(), b"A1")
+
+    def test_regression_intra_run_conflict_on_collision_skip(self):
+        """Sec.5 skip: first source claims the destination; second source
+        (mapping to the now-claimed destination) is left unrenamed,
+        exit 0."""
+        self._touch("a1.txt", content=b"A1")
+        self._touch("a2.txt", content=b"A2")
+        code, out, err = run_cli(["--pattern", "a*.txt", "--template",
+                                   "same.txt", "--path", self.tmpdir,
+                                   "--on-collision", "skip"])
+        self.assertEqual(code, 0)
+        listing = sorted(os.listdir(self.tmpdir))
+        self.assertEqual(listing, ["a2.txt", "same.txt"])
+        with open(os.path.join(self.tmpdir, "same.txt"), "rb") as f:
+            self.assertEqual(f.read(), b"A1")
+
+    def test_regression_intra_run_conflict_on_collision_overwrite(self):
+        """Sec.5 overwrite: first source claims the destination; second
+        source then overwrites it, exit 0; final content is the LAST
+        (sequence-order) writer's."""
+        self._touch("a1.txt", content=b"A1")
+        self._touch("a2.txt", content=b"A2")
+        code, out, err = run_cli(["--pattern", "a*.txt", "--template",
+                                   "same.txt", "--path", self.tmpdir,
+                                   "--on-collision", "overwrite"])
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(os.listdir(self.tmpdir)), ["same.txt"])
+        with open(os.path.join(self.tmpdir, "same.txt"), "rb") as f:
+            self.assertEqual(f.read(), b"A2")
 
     # =====================================================================
     # Extra edge cases (beyond the 20 numbered criteria)
