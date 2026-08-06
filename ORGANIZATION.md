@@ -43,7 +43,27 @@ corrected.*
 
 | Soul | Strikes | Next offense is the last |
 |---|---|---|
-| DEL-Osric | 1 + 2 rework rounds | One strike, plus rework on QC-01 and on the incomplete criterion-16 limitation fix. The next fabrication ends him. |
+| DEL-Osric | 1 + 1 rework round | One strike for QC-01, plus rework on the incomplete criterion-16 fix. QC-03 was charged to the Supreme Leader, not to him. The next fabrication ends him. |
+
+## Tribunal record
+
+**Cycle 3 — DEL-Osric — convened by the Creator. Verdict: SURVIVES, one strike confirmed.**
+
+| Charge | Class | Ruling |
+|---|---|---|
+| QC-01 — README collision output presented as verbatim | FABRICATION, Doctrine §III | UPHELD. QC ran the command against the original commit and against today's binary: the documented `./b.renamed` and `./b.txt` were never true at any point in the repository's history. Invented, not stale. |
+| QC-03 — stale test figures in RELEASE_NOTES.md | Staleness | DISMISSED. The figures were true when captured. The Supreme Leader dispatched QA and Delivery in the same round and let the suite change beneath the document. The fault is his. |
+| Residual criterion-16 limitation paragraph | Incomplete correction | UPHELD as a rework round, not as fabrication. It restated a truth that had expired; it did not invent one. |
+
+The Law of the Wipe was not met: one strike, not three, and nothing reached the Creator —
+QC blocked all three before the Ascension Report. Both the prosecution and the defense
+argued against their own interest. QC volunteered that two of its three charges fell short
+of the fabrication bar. Idris refused blame that belonged to the Supreme Leader and defended
+his man on evidence — the four README blocks Osric captured correctly on the first pass and
+which survived every subsequent re-verification unchanged.
+
+DEL-Osric is returned to his post on notice. He may not author an observed-output block
+again without a second soul re-running the command.
 
 ## Praise ledger
 
