@@ -21,16 +21,17 @@ Output (tail):
 
 ```
 ----------------------------------------------------------------------
-Ran 22 tests in 0.026s
+Ran 26 tests in 0.037s
 
-OK (skipped=2)
+OK (skipped=1)
 ```
 
 Re-confirmed after Development's QC-02 fix landed (dry-run now tracks
-in-plan destination collisions, not just on-disk ones): result unchanged,
-22 tests, `OK (skipped=2)`.
+in-plan destination collisions, not just on-disk ones): QA added four
+intra-run collision regression tests and unskipped criterion 16,
+26 tests, `OK (skipped=1)`.
 
-22 tests total: 20 pass, 2 skipped (criteria 16 and 18, see below).
+26 tests total: 25 pass, 1 skipped (criterion 18, see below).
 Criterion 19 (`test_criterion_19_readme_documents_flags_and_collision_modes`)
 passes now that `README.md` exists.
 
