@@ -95,6 +95,10 @@ rename time.
 - WON'T: cross-platform path-casing normalization (assume case-sensitive filesystem).
 - WON'T: overwrite-onto-directory collision handling — undefined behavior acceptable, not tested.
 - WON'T: network paths / non-local filesystems.
+- NOTE: criterion 18 (permission-denied → exit 3) is UNVERIFIABLE when the test suite runs as
+  root — root bypasses filesystem write-permission checks on most POSIX systems, so
+  `os.chmod` removing write permission will not induce the failure the criterion exercises.
+  QA must report this as UNVERIFIED in a root execution environment, not as PASS or FAIL.
 
 ## 10. Value Notes
 - Dry-run (§4) — required before any destructive rename tool ships; prevents irreversible data
@@ -142,9 +146,15 @@ rename time.
 14. Omitting `--pattern` or `--template` exits 2 (argparse usage error), no traceback.
 15. `-v` / `--verbose` produces one line of output per attempted rename (count of stdout lines
     with a rename marker equals count of matched files), independent of `--dry-run`.
-16. Running the tool twice in immediate succession with identical arguments and
-    `--on-collision skip` is idempotent on the second run: exit code 0, zero files renamed on
-    the second invocation (all targets already exist and are skipped).
+16. Idempotency (non-self-matching template only): using `--pattern "*.txt"
+    --template "{name}.done"` (output extension does not match `--pattern`, so renamed files
+    cannot be re-matched by a repeat run), running the tool twice in immediate succession with
+    identical arguments renames matching files on the first run (exit 0), then on the second
+    run renames zero files (verify via directory listing unchanged) with exit code 4 per §6
+    item 4 (no matches) — the tool never re-processes its own prior output. Pattern/template
+    pairs whose output re-matches `--pattern` (e.g. `{name}_x{ext}`) are excluded from this
+    criterion; they are not idempotent by design (each run's output is eligible input to the
+    next run) and no criterion claims otherwise.
 17. A filename with no extension (e.g. `README`) resolves `{ext}` to the empty string in the
     template (verify via a template like `{name}_v2{ext}` producing `README_v2`, no trailing
     dot).
