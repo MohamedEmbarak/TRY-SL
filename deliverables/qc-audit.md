@@ -136,3 +136,20 @@ Fresh suite run, this session: `python3 -m unittest deliverables.test_renamer -v
 ### Final verdict
 
 **NOT CLEARED TO SHIP.** Blocking claim: RELEASE_NOTES.md lines 40–49 (Known Limitations, criterion 16) still assert criterion 16 is skipped/UNVERIFIED — false, per `python3 -m unittest deliverables.test_renamer -v` run this session, and inconsistent with the document's own line 34. QC-01, QC-02, and the four QC-03 figures are all verified TRUE and RESOLVED; this one stale paragraph is the sole remaining blocker.
+
+---
+
+## QC-04 FINAL CLEARANCE CHECK
+
+**1. Criterion-16 bullet factual claims — run 1 / run 2 reproduced manually:**
+`touch x.txt`; run 1: `python3 renamer.py --pattern "*.txt" --template "{name}.done" --path .` → exit=0, `x.txt`→`x.done`. Run 2, identical args: `NOTICE: no files matched`, exit=4, dir listing unchanged (`x.done` only). Matches the bullet's description exactly. Test suite: `test_criterion_16_idempotent_rerun_non_self_matching ... ok` (not skipped) in `python3 -m unittest deliverables.test_renamer -v`. **TRUE.**
+
+**2. requirements.md §11.16 attribution:** `grep -n "^16\." -A9 deliverables/requirements.md` → text matches the bullet's paraphrase (same example pair `--pattern "*.txt" --template "{name}.done"`, exit 0 / exit 4, self-matching pairs e.g. `{name}_x{ext}` explicitly excluded). `git log --oneline -- deliverables/requirements.md` → commit `9696e3a` "Amend requirements.md criterion 16 to the non-self-matching template case" (message: "Business tightens criterion 16"), confirming the bullet's "Business amended §11.16 (Cycle 3)" claim. **TRUE.**
+
+**3. Criterion 18 bullet + no other stale claim:** Full run confirms `test_criterion_18_permission_denied ... skipped 'UNVERIFIED: test process is root (uid=0); os.chmod-based write-protection does not block root, so exit-3-on-permission-error cannot be exercised in this environment.'` — verbatim match to the bullet text. `git log --oneline -- deliverables/renamer.py` shows no commits after the QC-02 fix (`05191a6`), so the dry-run/skip caveat (verified by command in the prior audit round) still holds unchanged. Re-read full file top to bottom: "What Ships", test-count sentences (26/25/1, matches run below), criterion 19 pass claim, and "Not in Scope" all consistent with current suite/code state. No other stale claim found. **TRUE.**
+
+**4. Final full suite run:** `python3 -m unittest deliverables.test_renamer -v` → `Ran 26 tests in 0.031s` / `OK (skipped=1)`. Matches RELEASE_NOTES.md exactly.
+
+### Final verdict
+
+**CLEARED TO SHIP.** All four re-audit rounds (QC-01, QC-02, QC-03, QC-04) independently reproduced by command this session. No open finding remains.
