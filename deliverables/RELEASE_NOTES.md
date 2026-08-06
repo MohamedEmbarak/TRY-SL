@@ -21,10 +21,14 @@ Output (tail):
 
 ```
 ----------------------------------------------------------------------
-Ran 22 tests in 0.040s
+Ran 22 tests in 0.026s
 
 OK (skipped=2)
 ```
+
+Re-confirmed after Development's QC-02 fix landed (dry-run now tracks
+in-plan destination collisions, not just on-disk ones): result unchanged,
+22 tests, `OK (skipped=2)`.
 
 22 tests total: 20 pass, 2 skipped (criteria 16 and 18, see below).
 Criterion 19 (`test_criterion_19_readme_documents_flags_and_collision_modes`)
@@ -52,6 +56,13 @@ passes now that `README.md` exists.
 Both limitations are pre-existing conditions of the test environment and
 template/pattern interaction, not defects introduced this cycle. No pass
 rate is claimed for either; both are reported honestly as UNVERIFIED.
+- **Dry-run exit code does not always predict the real run's, under `skip`.**
+  Per spec §4 as written, `--dry-run` exits 1 for any planned collision
+  regardless of `--on-collision` policy (confirmed: `--on-collision skip
+  --dry-run` on a colliding pair exits 1), while the real run under
+  `--on-collision skip` resolves the same collision by skipping and exits 0.
+  This is spec-conformant, not a bug, but dry-run's exit code should not be
+  read as a preview of the real run's exit code when policy is `skip`.
 
 ## Not in Scope
 

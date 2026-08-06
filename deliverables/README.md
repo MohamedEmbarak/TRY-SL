@@ -114,8 +114,8 @@ already completed before the collision remain applied — no rollback.
 $ ls fail/
 a.txt  b.renamed  b.txt
 $ python3 renamer.py --pattern "*.txt" --template "{name}.renamed" --path fail
-ERROR: collision at ./b.renamed
-exit=3
+ERROR: collision at fail/b.renamed
+EXIT=3
 $ ls fail/
 a.renamed  b.renamed  b.txt
 ```
@@ -132,8 +132,8 @@ to stdout, continues with the remaining matches, exit 0 if no other errors.
 $ ls skip/
 a.txt  b.renamed  b.txt
 $ python3 renamer.py --pattern "*.txt" --template "{name}.renamed" --path skip --on-collision skip
-SKIP: ./b.txt (target exists)
-exit=0
+SKIP: skip/b.txt (target exists)
+EXIT=0
 $ ls skip/
 a.renamed  b.renamed  b.txt
 ```
