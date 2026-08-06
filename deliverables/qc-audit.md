@@ -67,3 +67,58 @@ No test in test_renamer.py exercises the two-sources-one-destination scenario (c
 | QC-02 | Dry-run fails to detect in-batch (two-source-same-destination) collisions, violating requirements.md §4/§5 | FALSE (code bug) | deliverables/renamer.py `run_dry()` lines 129–138 | Not stated in file — Supreme Leader to attribute (Dev directorate authored renamer.py) |
 
 No fabrication found in: file existence claims, import/dependency claims, or the "22 tests / OK (skipped=2)" test-result claim — all independently reproduced verbatim.
+
+---
+
+## Cycle 3 RE-AUDIT (post-rework)
+
+### QC-01 re-check — all 6 README blocks executed verbatim
+
+Command per block, scratch dirs mirroring README's own setup (`/tmp/.../qc-readme-recheck`): `-h`, basic rename, `--dry-run`, `fail`, `skip`, `overwrite`.
+
+| Block | Observed | Matches README byte-for-byte? |
+|---|---|---|
+| `-h` | full usage text | YES |
+| basic | `exit=0`; `a_x.txt b_x.txt c.md` | YES |
+| dry-run | 2x `DRY-RUN:` lines, `exit=0`, dir unchanged | YES |
+| fail | `ERROR: collision at fail/b.renamed`, `EXIT=3` | YES — path prefix fixed (was `./b.renamed`) |
+| skip | `SKIP: skip/b.txt (target exists)`, `EXIT=0` | YES — path prefix fixed (was `./b.txt`) |
+| overwrite | `exit=0`, `b.renamed`→`NEW-CONTENT` | YES |
+
+**QC-01: RESOLVED.** Delivery's re-capture is accurate.
+
+### QC-02 re-check — dry-run + all three policies, in-batch (two-source-same-destination) collision
+
+Command: `renamer.py --pattern "*.txt" --template "same.txt" --path <dir> [--dry-run] [--on-collision skip|overwrite]`, sources `a1.txt`,`a2.txt`.
+
+| Mode | Observed exit | Verdict |
+|---|---|---|
+| dry-run, default(fail) | 1 | correct (was 0 before fix) |
+| dry-run, skip | 1 | correct — matches new RELEASE_NOTES caveat |
+| dry-run, overwrite | 1 | correct |
+| real, fail | `ERROR: collision at r1/same.txt`, exit 3 | correct |
+| real, skip | `SKIP: r2/a2.txt (target exists)`, exit 0 | correct |
+| real, overwrite | exit 0, only `same.txt` remains | correct |
+
+**QC-02: RESOLVED.** `execute_plan()`'s `claimed` set now catches intra-run destination collisions under dry-run and all three policies.
+
+### Test-count claim — "Ran 26 tests / OK (skipped=1)"
+
+Command: `python3 -m unittest deliverables.test_renamer -v`
+Observed: `Ran 26 tests in 0.058s` / `OK (skipped=1)`. 25 `ok` + 1 `skipped` (criterion 18 only — criterion 16 is now `test_criterion_16_idempotent_rerun_non_self_matching ... ok`, no longer skipped). 4 new `test_regression_intra_run_conflict_*` tests present and passing.
+
+**Verdict: TRUE.** Matches exactly.
+
+### RELEASE_NOTES.md figures and new caveat
+
+Command: `grep -n "22 tests\|26 tests\|skipped=1\|skipped=2\|Ran " deliverables/RELEASE_NOTES.md`
+
+Observed: RELEASE_NOTES.md lines 24, 26, 31, 33 still read **"Ran 22 tests in 0.026s" / "OK (skipped=2)" / "22 tests, OK (skipped=2)" / "22 tests total: 20 pass, 2 skipped (criteria 16 and 18)"** — unchanged from the pre-rework version. The "Known Limitations" section still lists criterion 16 as unverified/skipped, contradicting the test suite I just ran, where criterion 16 is unskipped and passing.
+
+**Finding QC-03 (FALSE, stale/incorrect figures):** RELEASE_NOTES.md's test-count section was not updated after QA's rework (26 tests actual vs. 22 claimed; skipped=1 actual vs. skipped=2 claimed; criterion 16 falsely still described as skipped/UNVERIFIED). This is the exact figure the Creator would read to judge test coverage — it is currently wrong.
+
+The new dry-run/skip exit-code caveat (RELEASE_NOTES.md lines 59–65: "dry-run exits 1 under `--on-collision skip` on a colliding pair while the real run exits 0") **was independently reproduced above under QC-02 and is TRUE.**
+
+### Final verdict
+
+**NOT CLEARED TO SHIP.** Blocking claim: RELEASE_NOTES.md's stale test-count ("22 tests / OK (skipped=2)", 4 occurrences) contradicts the actual, independently-reproduced result ("26 tests / OK (skipped=1)") — QC-03. QC-01 and QC-02 are both RESOLVED and verified by command. No soul named for QC-03 pending Supreme Leader attribution — RELEASE_NOTES.md carries no byline.
