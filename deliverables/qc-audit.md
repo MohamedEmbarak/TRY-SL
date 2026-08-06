@@ -122,3 +122,17 @@ The new dry-run/skip exit-code caveat (RELEASE_NOTES.md lines 59–65: "dry-run 
 ### Final verdict
 
 **NOT CLEARED TO SHIP.** Blocking claim: RELEASE_NOTES.md's stale test-count ("22 tests / OK (skipped=2)", 4 occurrences) contradicts the actual, independently-reproduced result ("26 tests / OK (skipped=1)") — QC-03. QC-01 and QC-02 are both RESOLVED and verified by command. No soul named for QC-03 pending Supreme Leader attribution — RELEASE_NOTES.md carries no byline.
+
+---
+
+## QC-03 CLOSURE CHECK
+
+Commit `1970455` ("Refresh release-note test figures to the current suite (QC-03)") re-read via `git show 1970455 -- deliverables/RELEASE_NOTES.md`: 5 diff hunks, all inside "Observed Test Result" — `Ran 22→26 tests`, `skipped=2→1`, the re-confirmed sentence, and the `22→26 tests total... 2→1 skipped` sentence. No other section touched (confirmed by diff scope — What Ships, Pattern semantics, Not in Scope untouched).
+
+Fresh suite run, this session: `python3 -m unittest deliverables.test_renamer -v` → `Ran 26 tests in 0.030s` / `OK (skipped=1)`; `test_criterion_16_idempotent_rerun_non_self_matching ... ok` (not skipped); `test_criterion_18_permission_denied ... skipped`. The four figures now match this run exactly.
+
+**Finding QC-04 (FALSE, stale line left behind):** RELEASE_NOTES.md "Known Limitations" bullet 1 (lines 40–49) still reads: *"Criterion 16 (idempotence) — UNVERIFIED... Test is marked `skipTest`, not asserted true or false."* This is no longer true — criterion 16 passes (`ok`) in the suite I just ran, and it directly contradicts the document's own corrected line 34 ("26 tests total: 25 pass, 1 skipped (**criterion 18**, see below)"), which already excludes criterion 16 from the skip count. The QC-03 commit fixed the summary figures but did not remove/rewrite the now-false criterion-16 limitation paragraph — a leftover self-contradiction within the same file.
+
+### Final verdict
+
+**NOT CLEARED TO SHIP.** Blocking claim: RELEASE_NOTES.md lines 40–49 (Known Limitations, criterion 16) still assert criterion 16 is skipped/UNVERIFIED — false, per `python3 -m unittest deliverables.test_renamer -v` run this session, and inconsistent with the document's own line 34. QC-01, QC-02, and the four QC-03 figures are all verified TRUE and RESOLVED; this one stale paragraph is the sole remaining blocker.
