@@ -1,0 +1,40 @@
+# OS cruft
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+dist/
+build/
+
+# Secrets and local overrides
+.env
+.env.local
+.claude/settings.local.json
+
+# NOTE: .claude/agents/ and .claude/commands/ are deliberately NOT ignored.
+# They are the organization itself — without them committed, a fresh clone
+# has no directorates to dispatch.
