@@ -126,37 +126,54 @@ def plan_renames(matched_paths, template):
 # Execution
 # ---------------------------------------------------------------------------
 
-def run_dry(plan, verbose):
-    """Print DRY-RUN lines for every planned rename; return exit code (0 or 1)."""
+def execute_plan(plan, on_collision, dry_run, verbose):
+    """Walk the plan in sequence-counter order, detecting collisions against
+    both real filesystem state AND destinations already claimed earlier in
+    THIS plan (Sec.5: "another rename's target" is also a collision).
+
+    `claimed` tracks destinations that would exist by this point in the run
+    (real writes when not dry_run; simulated success when dry_run), so an
+    intra-run duplicate destination is caught under all three policies, in
+    both dry-run and real execution. Returns the exit code.
+    """
+    claimed = set()
     any_collision = False
+
     for src, dst in plan:
-        print(f"DRY-RUN: {src} -> {dst}")
+        if dry_run:
+            print(f"DRY-RUN: {src} -> {dst}")
         if verbose:
             print(f"RENAME: {src} -> {dst}")
-        if os.path.lexists(dst):
-            any_collision = True
-    return 1 if any_collision else 0
 
+        collides = os.path.lexists(dst) or dst in claimed
 
-def run_real(plan, on_collision, verbose):
-    """Execute renames per the collision policy. Returns exit code (0 or 3)."""
-    for src, dst in plan:
-        if verbose:
-            print(f"RENAME: {src} -> {dst}")
-        collides = os.path.lexists(dst)
         if collides:
+            any_collision = True
             if on_collision == "fail":
+                if dry_run:
+                    # Would stop here in a real run; keep printing remaining
+                    # matches per Sec.4, but do not claim this destination.
+                    continue
                 print(f"ERROR: collision at {dst}", file=sys.stderr)
                 return 3
             if on_collision == "skip":
-                print(f"SKIP: {src} (target exists)")
+                if not dry_run:
+                    print(f"SKIP: {src} (target exists)")
                 continue
-            # on_collision == "overwrite": fall through to replace below.
+            # on_collision == "overwrite": would succeed; claim it below.
+        if dry_run:
+            claimed.add(dst)
+            continue
+
         try:
             os.replace(src, dst)
         except OSError as exc:
             print(f"ERROR: {src}: {exc}", file=sys.stderr)
             return 3
+        claimed.add(dst)
+
+    if dry_run:
+        return 1 if any_collision else 0
     return 0
 
 
@@ -223,10 +240,7 @@ def main(argv=None):
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
-    if args.dry_run:
-        return run_dry(plan, args.verbose)
-
-    return run_real(plan, args.on_collision, args.verbose)
+    return execute_plan(plan, args.on_collision, args.dry_run, args.verbose)
 
 
 if __name__ == "__main__":
