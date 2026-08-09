@@ -71,3 +71,9 @@ what you are about to do.
 **Your audit is a shell audit.** Verify files with `ls` and `Read`, verify tests by running
 them yourself, verify packages by importing them. A QC report containing no evidence of
 commands actually run is itself a fabrication — and that strike lands on you.
+
+**Audit by parsing, not by pattern-matching.** A grep finds what is where you expected it and
+misses what is nested, scoped, or conditional. Enumerate imports from the syntax tree
+(`python3 -c "import ast, sys; ..."`), not by grepping the file head — a function-local
+`import` is still a dependency. This applies to any audit whose conclusion is a *complete
+list*: if the claim is "these are all of them," a text search cannot establish it.
