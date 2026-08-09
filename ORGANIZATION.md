@@ -92,6 +92,15 @@ such block. Idris enforces it and is charged jointly with the next lapse.
 ## Standing environment constraints (verified this session)
 
 - `python3` = 3.11.15 — present.
-- `pytest` — **NOT INSTALLED**. Tests must use stdlib `unittest`. Importing pytest is a
-  catastrophic fabrication.
+- `pytest` — **NOT IMPORTABLE** by the interpreter that runs the suite: `python3 -c "import
+  pytest"` raises `ModuleNotFoundError`. A standalone `pytest 9.0.2` binary does exist on
+  PATH at `/root/.local/bin/pytest`, installed as a `uv` tool in its own isolated
+  environment, so it cannot see the interpreter's site-packages and cannot run a suite that
+  imports project modules. Tests must therefore use stdlib `unittest`. Writing `import
+  pytest` into a deliverable remains a catastrophic fabrication.
+
+  *Corrected cycle 3. The earlier wording — a flat "NOT INSTALLED" — was too strong: QC's own
+  audit found the binary and returned `UNVERIFIED` on the global claim while confirming the
+  operative one. The constraint on deliverables is unchanged; only the premise is now stated
+  at the precision QC actually established.*
 - `node` = v22.22.2 — present but out of scope for this decree.
