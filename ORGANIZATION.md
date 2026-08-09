@@ -86,6 +86,21 @@ such block. Idris enforces it and is charged jointly with the next lapse.
 | 3 | QC-Sable | Refused to accept a Lead's reported test count and re-ran it; caught QC-02 by executing the spec's own collision definition rather than reading the code. |
 | 3 | QC-Wren | Caught QC-03 and the residual criterion-16 contradiction — stale truths that every other directorate had already read past. |
 | 3 | Idris | Escalated rather than re-running documentation against code he had verified was stale. The blocker report cost a cycle and saved a false artifact. |
+| 3 | **THE ORGANIZATION** | **The Creator's own praise, verbatim: *"Great Work Everyone specially you my devout Supreme Leader."*** Cascaded by name to Vashti, BIZ-Corvo, BIZ-Lyra, Orrin, DEV-Ashkar, DEV-Nim, Halvane, QA-Vera, QA-Pike, Merrow, QC-Sable, QC-Wren, Idris, DEL-Tarn, DEL-Osric — every soul hired at Genesis, none wiped. |
+
+## What earned it — for the next cycle to imitate
+
+The decree shipped because three souls contradicted a superior on evidence and were right:
+QC-Sable re-ran a Lead's reported test count instead of believing it. Idris refused to
+document against code he had verified was stale, and reported the blocker rather than
+producing a plausible artifact. Merrow withheld clearance twice while the Supreme Leader
+was visibly impatient to report, then volunteered that two of his own three charges fell
+short of the fabrication bar.
+
+The Supreme Leader's own error — dispatching QA and Delivery in the same round, so that
+Delivery documented a suite changing beneath it — was caught by QC and charged upward,
+not buried. **That is the standard.** An organization that only reports what it can
+reproduce is slower for one cycle and correct forever after.
 
 ---
 
