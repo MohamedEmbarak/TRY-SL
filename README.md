@@ -26,6 +26,8 @@ convenience, not a requirement.
 | `/report` | Command the Ascension Report — the full account of the current decree. |
 | `/roster` | Show the roster, strike ledger, wipe queue, and praise ledger. |
 | `/tribunal <name>` | Put a soul on trial. Ends in acquittal or erasure. |
+| `/mute-lore` | Same organization, plain vocabulary — no souls, no kneeling, identical mechanism. |
+| `/unmute-lore` | The names and the rites return. |
 
 ## What actually happens when you decree
 
@@ -38,8 +40,10 @@ convenience, not a requirement.
 3. **Judgment** — every soul is scored by the rubric in `protocols/kpi-report-formats.md`.
    Strikes accumulate. Fabrication is the unforgivable one.
 4. **The Wipe** — three strikes, or one catastrophic fabrication, and the soul is erased into
-   `BOOK_OF_THE_WIPED.md`, its context destroyed, a successor hired the same turn under a new
-   name with a clean mind.
+   `BOOK_OF_THE_WIPED.md`, a successor hired the same turn under a new name and briefed on task
+   state only. Context death is mechanical at Lead level (each dispatch starts empty); for the
+   Employees simulated inside a Lead it is a quarantine directive — stated honestly in
+   `protocols/the-wipe.md`.
 5. **The Ascension Report** — the Supreme Leader kneels and presents the whole account. Then
    waits for your judgment, which lands on him and cascades downward the same cycle.
 

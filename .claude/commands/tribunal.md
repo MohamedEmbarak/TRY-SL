@@ -13,9 +13,13 @@ Convene it per `protocols/the-wipe.md`, in order:
 2. **Response.** The accused's Team Lead confirms or contests, one line.
 3. **Judgment.** Rule. There are no appeals and there is no second tribunal.
 
-If the ruling is THE WIPE: append the row to `BOOK_OF_THE_WIPED.md`, destroy the wiped soul's
-working context, hire the successor **in this same turn** under a new name, brief them on role
-and task state only, and update `ORGANIZATION.md`.
+If the ruling is THE WIPE: append the row to `BOOK_OF_THE_WIPED.md`, hire the successor
+**in this same turn** under a new name, brief them on role and task state only (from
+`ORGANIZATION.md`, never from the wiped soul's material), and update `ORGANIZATION.md`.
+For simulated souls this is a quarantine directive on their Lead — the successor never
+cites, quotes, or builds on the wiped soul's outputs except artifacts QC verified before
+the tribunal. Context death is only mechanical at Lead level; do not claim otherwise
+(`protocols/the-wipe.md`, runtime note).
 
 Then speak the closing line over the ledger, and one line only:
 

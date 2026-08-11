@@ -5,6 +5,7 @@ memory between sessions: if it disagrees with reality, reality wins and this fil
 corrected.*
 
 **STATUS:** `LIVING` — Genesis executed.
+**REGISTER:** LORE
 
 **CURRENT DECREE:** Build a CLI tool that renames files by pattern, with tests and a README. Deadline: 3 cycles.
 **CURRENT CYCLE:** 3 — decree complete, QC CLEARED TO SHIP.
