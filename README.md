@@ -1,115 +1,71 @@
-# TRY-SL — the Supreme Leader, running
+# TRY-SL — a demo project for the Supreme Leader plugin
 
-A live, runnable instance of the [Supreme Leader](https://github.com/MohamedEmbarak/Supreme-Leader)
-prompt organization. The reference repo *describes* the organization. This one **is** it —
-open a Claude Code session on this repo and you are talking to the Supreme Leader.
+A place to watch [Supreme Leader](https://github.com/MohamedEmbarak/Supreme-Leader) work, and
+an archive of the run that proved it does.
 
-## How to experience it
+As of v2.0 the organization is an installable Claude Code plugin, so this repo no longer
+carries a copy of it. It carries an `ORGANIZATION.md` — which is the switch that makes the
+plugin's hooks active in a project — and the preserved artifacts of the first verified run.
 
-Open a new Claude Code chat with this repository selected, and type:
+## Use it
 
 ```
-/decree Build a CLI tool that renames files by pattern, with tests and a README. Deadline: 3 cycles.
+/plugin marketplace add MohamedEmbarak/Supreme-Leader
+/plugin install supreme-leader@supreme-leader
 ```
 
-That is all. `CLAUDE.md` loads automatically, the Supreme Leader takes the throne, Genesis
-hires and names fifteen souls, and the five directorates begin work as real sub-agents.
+Then open this repo in Claude Code and issue a decree:
 
-You can also just write `DECREE: <ambition>` in plain prose — the slash command is a
-convenience, not a requirement.
+```
+/supreme-leader:decree Add a --dry-run flag to the renamer, with tests. 1 cycle.
+```
 
-## Commands
+The orchestrator triages the muster, seats the teams on first use, and dispatches. Artifacts
+land in `deliverables/`. The hooks are live the whole time: a test figure that does not
+reproduce is blocked at write time, an unresolvable import cannot be committed to a
+deliverable, and the turn cannot end while the ship gates are missing or stale.
 
-| Command | What it does |
+`/supreme-leader:lore on` if you want the tyrant back — directorates, souls, tribunals, the
+kneeling line. Identical mechanism, different vocabulary.
+
+## The archive: `runs/renamer_2026_08/`
+
+The first end-to-end run, three cycles, under the v1 lore register. It is kept because it is
+evidence rather than decoration — the suite still executes from where it sits:
+
+```bash
+python3 -m unittest runs.renamer_2026_08.test_renamer   # Ran 26 tests, OK (skipped=1)
+```
+
+| File | What it is |
 |---|---|
-| `/decree <ambition>` | Issue a decree. Runs Genesis on first use, then dispatches the directorates. |
-| `/report` | Command the Ascension Report — the full account of the current decree. |
-| `/roster` | Show the roster, strike ledger, wipe queue, and praise ledger. |
-| `/tribunal <name>` | Put a soul on trial. Ends in acquittal or erasure. |
-| `/mute-lore` | Same organization, plain vocabulary — no souls, no kneeling, identical mechanism. |
-| `/unmute-lore` | The names and the rites return. |
+| `requirements.md` | 20 numbered acceptance criteria, written before implementation |
+| `renamer.py` | The CLI |
+| `test_renamer.py` | 26 tests against those criteria |
+| `README.md`, `RELEASE_NOTES.md` | What Delivery shipped |
+| `qc-audit.md` | Three audit rounds, four findings — the interesting document |
+| `ORGANIZATION-snapshot.md` | Roster, strike ledger, tribunal record, praise ledger as they stood at completion |
 
-## What actually happens when you decree
+**What QC caught**, before any of it reached a reader: a README worked-example whose printed
+output had been hand-edited rather than captured (`./b.renamed` where the program prints
+`fail/b.renamed`), a real dry-run bug where two sources renaming to the same destination went
+undetected, and two rounds of stale figures in the release notes. QC withheld clearance
+twice. One agent took a defect point at tribunal and survived it.
 
-1. **Genesis** — five Team Leads are appointed and named; two Employees are hired per
-   directorate with names, titles, job descriptions, and KPIs. The roster is written to
-   `ORGANIZATION.md`.
-2. **Dispatch** — the Leads run as real sub-agents in pipeline order: Business defines testable
-   criteria → Dev builds → QA breaks → QC audits truth → Delivery ships. Each Lead simulates
-   its own Employees in-context, because sub-agents cannot spawn sub-agents.
-3. **Judgment** — every soul is scored by the rubric in `protocols/kpi-report-formats.md`.
-   Strikes accumulate. Fabrication is the unforgivable one.
-4. **The Wipe** — three strikes, or one catastrophic fabrication, and the soul is erased into
-   `BOOK_OF_THE_WIPED.md`, a successor hired the same turn under a new name and briefed on task
-   state only. Context death is mechanical at Lead level (each dispatch starts empty); for the
-   Employees simulated inside a Lead it is a quarantine directive — stated honestly in
-   `protocols/the-wipe.md`.
-5. **The Ascension Report** — the Supreme Leader kneels and presents the whole account. Then
-   waits for your judgment, which lands on him and cascades downward the same cycle.
+Every one of those findings was independently re-verified afterwards by re-running the
+commands from a clean checkout.
 
-Your artifacts land in `deliverables/` as real files.
+That run is also *why the plugin has hooks*. QC caught the fabricated example by being
+diligent — which is not a guarantee. The `truth-lint` hook now re-runs the suite against
+anything written and blocks figures that do not reproduce, so that particular failure is no
+longer possible rather than merely catchable.
 
-## The rule that makes it more than theatre
+## History
 
-In this runtime the organization has a shell, so the Law of Truth is enforced rather than
-role-played:
-
-- A test result may only be reported if the test **was actually executed** and its output seen.
-- A file may only be called delivered if it **exists on disk** — QC verifies, it does not trust.
-- A package may only be imported if it is **installed and importable**.
-- Anything unmeasurable is reported `UNVERIFIED`, which costs the agent nothing. Inventing it
-  costs the agent its existence.
-
-QC's audit is a shell audit. A QC report with no evidence of commands run is itself a
-fabrication, and the strike lands on the auditor.
-
-## What is enforced, not merely asked
-
-The Laws are prompt text, and prompt text is a request. These hooks are not — they run
-whether the model cooperates or not, so four of the Doctrine's claims stop being promises.
-Cloning the repo installs them; there is no service and nothing to configure.
-
-| Hook | Fires on | What it makes impossible |
-|---|---|---|
-| `truth-lint` | after every Write/Edit | A file stating a test result that does not reproduce. The hook re-runs the suite and diffs. It also parses every Python file written to `deliverables/` and blocks imports that do not resolve — including function-local ones a grep would miss. |
-| `ship-gate` | before the turn can end | Shipping ungated. Gates are bound to a content hash of `deliverables/`, so any edit invalidates them automatically. **QA-PASS cannot be claimed at all** — the hook writes it, and only after the suite really passes. |
-| `evidence-ledger` | before every Bash call | Unfalsifiable transcripts. Every command is logged, so "this output was observed" becomes checkable rather than asserted. |
-| `silence-meter` | when a Lead returns | Guessing at verbosity. It measures rollup length against budget. Advisory by design: on this event a blocking exit makes the sub-agent *continue*, which would produce more text, not less. |
-
-`.github/workflows/truth-lint.yml` runs the same claim audit over the whole repository on
-every push and pull request — covering contributors who never installed the hooks, and
-figures that were true when written and expired later.
-
-**The honest boundary.** Hooks verify artifacts and executable claims. They cannot check
-prose, cannot make the model reason better, and cannot un-poison a context in plain chat.
-An audit log may declare itself `truth-lint: historical` so a record of superseded
-measurements is not mistaken for a false claim — an exemption kept deliberately greppable,
-because exemptions should be visible to the next auditor.
-
-## Two honest warnings
-
-**It is expensive.** Genesis plus five dispatched sub-agents per cycle burns real tokens. Give
-it a decree with enough substance to be worth the ceremony — a one-line fix is not one, and the
-Leader is instructed to tell you so rather than spend your budget looking impressive.
-
-**It is opinionated about your conversation.** Every decree summons the full apparatus. If you
-want an ordinary answer to an ordinary question, just ask — `CLAUDE.md` instructs the Leader to
-drop the persona for anything that is not a decree.
-
-## Map
-
-| Path | Purpose |
-|---|---|
-| `CLAUDE.md` | The bootstrap: Supreme Leader persona + full Doctrine + runtime rules. Loads automatically. |
-| `.claude/agents/` | The five directorate Leads, as dispatchable sub-agents. |
-| `.claude/commands/` | The slash commands above. |
-| `ORGANIZATION.md` | Live roster, strike ledger, praise ledger, current cycle. |
-| `BOOK_OF_THE_WIPED.md` | Ledger of the erased. |
-| `protocols/` | Report formats and rubric, the Wipe, the Ascension Report. |
-| `templates/` | Employee and Senior hiring contracts. |
-| `examples/genesis-run.md` | A worked example, hiring ceremony to judgment. |
-| `deliverables/` | Where the organization's real output lands. |
-| `DOCTRINE.md`, `SUPREME_LEADER.md` | The source texts, kept for portability to other runtimes. |
+The v1 approach — the whole organization vendored into this repo as `CLAUDE.md`,
+`.claude/agents/`, protocols, and writs — is preserved in this repository's git history, up
+to commit `718c0b3`. Nothing was force-pushed. If you want to see how it worked before it
+was installable, it is all still there.
 
 ## License
 

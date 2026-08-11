@@ -1,9 +1,7 @@
 name: Truth Lint
 
-# The Law of Truth, applied to the repository rather than to a session.
-# Local hooks protect whoever has them installed; this protects everyone else —
-# contributors who never ran them, and figures that were true when written and
-# expired afterwards.
+# The archived run is evidence, so it has to stay true. This re-runs its suite and
+# checks that every figure quoted about it still reproduces.
 
 on:
   push:
@@ -13,51 +11,36 @@ on:
 
 jobs:
   verify:
-    name: Every stated result must reproduce
+    name: The archived run must still reproduce
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Run the suite
-        run: |
-          set -o pipefail
-          python3 -m unittest -v $(
-            find deliverables tests -name 'test_*.py' 2>/dev/null \
-              | sed 's|/|.|g; s|\.py$||' | tr '\n' ' '
-          ) 2>&1 | tail -20
+      - name: Run the archived suite
+        run: python3 -m unittest -v runs.renamer_2026_08.test_renamer
 
-      - name: Verify every claim in every markdown file
-        run: python3 .claude/hooks/verify-claims.py
-
-      - name: Deliverables must import only what exists
+      - name: Figures quoted in the README must match the suite
         run: |
-          fail=0
-          for f in $(find deliverables -name '*.py' 2>/dev/null); do
-            python3 - "$f" <<'PY' || fail=1
-          import ast, importlib.util, sys
-          from pathlib import Path
-          p = Path(sys.argv[1]); root = Path.cwd()
-          tree = ast.parse(p.read_text())
-          mods = set()
-          for n in ast.walk(tree):
-              if isinstance(n, ast.Import):
-                  mods.update(a.name.split('.')[0] for a in n.names)
-              elif isinstance(n, ast.ImportFrom) and n.level == 0 and n.module:
-                  mods.add(n.module.split('.')[0])
+          python3 - <<'PY'
+          import re, subprocess, sys
+          p = subprocess.run(["python3","-m","unittest","runs.renamer_2026_08.test_renamer"],
+                             capture_output=True, text=True)
+          out = p.stdout + p.stderr
+          ran = int(re.search(r"Ran (\d+) tests", out).group(1))
+          passed = bool(re.search(r"^OK\b", out, re.M))
           bad = []
-          for m in sorted(mods):
-              if m in sys.stdlib_module_names: continue
-              if list(root.rglob(f'{m}.py')) or list(root.rglob(f'{m}/__init__.py')): continue
-              try:
-                  if importlib.util.find_spec(m) is None: bad.append(m)
-              except Exception: bad.append(m)
+          for f in ("README.md",):
+              t = open(f).read()
+              for m in re.finditer(r"Ran (\d+) tests", t):
+                  if int(m.group(1)) != ran:
+                      bad.append(f"{f}: claims Ran {m.group(1)}, actual {ran}")
+              if "OK (skipped=" in t and not passed:
+                  bad.append(f"{f}: claims the suite passes; it does not")
           if bad:
-              print(f'::error file={p}::fabricated dependency: {", ".join(bad)}')
+              for b in bad: print(f"::error::{b}")
               sys.exit(1)
+          print(f"README figures match: Ran {ran}, {'OK' if passed else 'NOT OK'}")
           PY
-          done
-          exit $fail

@@ -1,5 +1,0 @@
-# The organization is markdown. deliverables/ holds the output of runs -- real
-# artifacts, but products of the framework rather than the framework itself.
-# Marking them as generated keeps Linguist reporting this repo as what it is.
-deliverables/** linguist-generated=true
-examples/** linguist-documentation=true
