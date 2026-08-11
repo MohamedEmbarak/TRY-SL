@@ -6,7 +6,7 @@ are active in this project. If it ever disagrees with reality, reality wins and 
 is corrected.*
 
 **STATUS:** READY — seated, no decree in force.
-**REGISTER:** LORE
+**REGISTER:** PLAIN
 **MUSTER:** —
 **CURRENT DECREE:** none
 **CURRENT CYCLE:** 0
