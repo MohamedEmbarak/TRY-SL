@@ -11,7 +11,7 @@ plugin's hooks active in a project — and the preserved artifacts of the first 
 
 ```
 /plugin marketplace add MohamedEmbarak/Supreme-Leader
-/plugin install supreme-leader@supreme-leader
+/plugin install supreme-leader@embarak
 ```
 
 Then open this repo in Claude Code and issue a decree:

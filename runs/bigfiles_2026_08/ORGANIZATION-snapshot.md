@@ -43,7 +43,7 @@ see `qc-audit.md`.
 
 This was also the first end-to-end exercise of the v2.0 plugin: installed from the published
 marketplace with `claude plugin marketplace add MohamedEmbarak/Supreme-Leader` and
-`claude plugin install supreme-leader@supreme-leader`, then run against the installed copy
+`claude plugin install supreme-leader@embarak`, then run against the installed copy
 rather than a working tree. `claude plugin details` reported the component inventory as five
 skills, five agents, four hooks, at roughly 398 tokens always-on.
 
