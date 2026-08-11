@@ -38,3 +38,8 @@ build/
 # NOTE: .claude/agents/ and .claude/commands/ are deliberately NOT ignored.
 # They are the organization itself — without them committed, a fresh clone
 # has no directorates to dispatch.
+
+# Hook run-state: per-session, not framework
+.gates/*.json
+.gates/.attempts.json
+evidence/*.log

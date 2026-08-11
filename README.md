@@ -63,6 +63,29 @@ role-played:
 QC's audit is a shell audit. A QC report with no evidence of commands run is itself a
 fabrication, and the strike lands on the auditor.
 
+## What is enforced, not merely asked
+
+The Laws are prompt text, and prompt text is a request. These hooks are not — they run
+whether the model cooperates or not, so four of the Doctrine's claims stop being promises.
+Cloning the repo installs them; there is no service and nothing to configure.
+
+| Hook | Fires on | What it makes impossible |
+|---|---|---|
+| `truth-lint` | after every Write/Edit | A file stating a test result that does not reproduce. The hook re-runs the suite and diffs. It also parses every Python file written to `deliverables/` and blocks imports that do not resolve — including function-local ones a grep would miss. |
+| `ship-gate` | before the turn can end | Shipping ungated. Gates are bound to a content hash of `deliverables/`, so any edit invalidates them automatically. **QA-PASS cannot be claimed at all** — the hook writes it, and only after the suite really passes. |
+| `evidence-ledger` | before every Bash call | Unfalsifiable transcripts. Every command is logged, so "this output was observed" becomes checkable rather than asserted. |
+| `silence-meter` | when a Lead returns | Guessing at verbosity. It measures rollup length against budget. Advisory by design: on this event a blocking exit makes the sub-agent *continue*, which would produce more text, not less. |
+
+`.github/workflows/truth-lint.yml` runs the same claim audit over the whole repository on
+every push and pull request — covering contributors who never installed the hooks, and
+figures that were true when written and expired later.
+
+**The honest boundary.** Hooks verify artifacts and executable claims. They cannot check
+prose, cannot make the model reason better, and cannot un-poison a context in plain chat.
+An audit log may declare itself `truth-lint: historical` so a record of superseded
+measurements is not mistaken for a false claim — an exemption kept deliberately greppable,
+because exemptions should be visible to the next auditor.
+
 ## Two honest warnings
 
 **It is expensive.** Genesis plus five dispatched sub-agents per cycle burns real tokens. Give

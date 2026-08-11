@@ -1,4 +1,11 @@
 # QC Audit — Cycle 3 — renamer CLI
+
+<!-- truth-lint: historical -->
+*This is an audit log. It records figures as they were measured in each round, including
+figures later superseded by rework — the round-one suite really did report 22 tests before
+QA unskipped criterion 16 and added the intra-run collision cases. Those numbers are the
+record working, not claims about the current build. The repo-wide claim linter therefore
+exempts this file; every other document must state figures that reproduce today.*
 Auditors: QC-Sable (Claims), QC-Wren (Standards). Lead: Merrow.
 
 ## 1. Existence
