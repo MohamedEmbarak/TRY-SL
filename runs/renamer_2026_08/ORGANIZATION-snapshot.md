@@ -1,3 +1,4 @@
+<!-- truth-lint: historical -->
 # THE ORGANIZATION — LIVE STATE
 
 *Maintained by the Supreme Leader. Updated every cycle. This file is the organization's

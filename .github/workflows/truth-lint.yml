@@ -1,7 +1,8 @@
 name: Truth Lint
 
-# The archived run is evidence, so it has to stay true. This re-runs its suite and
-# checks that every figure quoted about it still reproduces.
+# The archived runs are evidence, so they have to stay true. Each archive is verified
+# independently by its own command -- a whole-repo run would sum them and make every
+# per-archive figure look wrong.
 
 on:
   push:
@@ -11,7 +12,7 @@ on:
 
 jobs:
   verify:
-    name: The archived run must still reproduce
+    name: Every archived run must still reproduce
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,10 +20,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Run the archived suite
-        run: python3 -m unittest -v runs.renamer_2026_08.test_renamer
-
-      - name: Figures quoted in the README must match the suite
+      - name: renamer_2026_08 — expect 26 tests, OK (skipped=1)
         run: |
           python3 - <<'PY'
           import re, subprocess, sys
@@ -30,17 +28,47 @@ jobs:
                              capture_output=True, text=True)
           out = p.stdout + p.stderr
           ran = int(re.search(r"Ran (\d+) tests", out).group(1))
-          passed = bool(re.search(r"^OK\b", out, re.M))
-          bad = []
-          for f in ("README.md",):
-              t = open(f).read()
-              for m in re.finditer(r"Ran (\d+) tests", t):
-                  if int(m.group(1)) != ran:
-                      bad.append(f"{f}: claims Ran {m.group(1)}, actual {ran}")
-              if "OK (skipped=" in t and not passed:
-                  bad.append(f"{f}: claims the suite passes; it does not")
-          if bad:
-              for b in bad: print(f"::error::{b}")
+          ok = bool(re.search(r"^OK", out, re.M))
+          if (ran, ok) != (26, True):
+              print(f"::error::renamer archive: expected 26 passing, got ran={ran} ok={ok}")
               sys.exit(1)
-          print(f"README figures match: Ran {ran}, {'OK' if passed else 'NOT OK'}")
+          print(f"renamer: Ran {ran}, OK")
+          PY
+
+      - name: bigfiles_2026_08 — expect 10 tests, OK
+        run: |
+          python3 - <<'PY'
+          import re, subprocess, sys
+          p = subprocess.run(["python3","-m","unittest","runs.bigfiles_2026_08.test_bigfiles"],
+                             capture_output=True, text=True)
+          out = p.stdout + p.stderr
+          ran = int(re.search(r"Ran (\d+) tests", out).group(1))
+          ok = bool(re.search(r"^OK", out, re.M))
+          if (ran, ok) != (10, True):
+              print(f"::error::bigfiles archive: expected 10 passing, got ran={ran} ok={ok}")
+              sys.exit(1)
+          print(f"bigfiles: Ran {ran}, OK")
+          PY
+
+      - name: Archives must import only what exists
+        run: |
+          python3 - <<'PY'
+          import ast, importlib.util, sys
+          from pathlib import Path
+          root, bad = Path.cwd(), []
+          for f in sorted(root.glob("runs/*/*.py")):
+              mods = set()
+              for n in ast.walk(ast.parse(f.read_text())):
+                  if isinstance(n, ast.Import):
+                      mods |= {a.name.split('.')[0] for a in n.names}
+                  elif isinstance(n, ast.ImportFrom) and n.level == 0 and n.module:
+                      mods.add(n.module.split('.')[0])
+              for m in sorted(mods):
+                  if m in sys.stdlib_module_names: continue
+                  if list(root.rglob(f"{m}.py")): continue
+                  try:
+                      if importlib.util.find_spec(m) is None: bad.append(f"{f}: {m}")
+                  except Exception: bad.append(f"{f}: {m}")
+          for b in bad: print(f"::error::fabricated dependency {b}")
+          sys.exit(1 if bad else 0)
           PY

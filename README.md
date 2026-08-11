@@ -28,23 +28,33 @@ deliverable, and the turn cannot end while the ship gates are missing or stale.
 `/supreme-leader:lore on` if you want the tyrant back — directorates, souls, tribunals, the
 kneeling line. Identical mechanism, different vocabulary.
 
-## The archive: `runs/renamer_2026_08/`
+## The archives: `runs/`
 
-The first end-to-end run, three cycles, under the v1 lore register. It is kept because it is
-evidence rather than decoration — the suite still executes from where it sits:
+Two completed decrees, kept because they are evidence rather than decoration. Both suites
+still execute from where they sit — run them yourself:
 
 ```bash
-python3 -m unittest runs.renamer_2026_08.test_renamer   # Ran 26 tests, OK (skipped=1)
+python3 -m unittest runs.renamer_2026_08.test_renamer
+python3 -m unittest runs.bigfiles_2026_08.test_bigfiles
 ```
+
+### `renamer_2026_08` — v1, lore register, three cycles, 26 tests
 
 | File | What it is |
 |---|---|
 | `requirements.md` | 20 numbered acceptance criteria, written before implementation |
-| `renamer.py` | The CLI |
-| `test_renamer.py` | 26 tests against those criteria |
+| `renamer.py`, `test_renamer.py` | The CLI and its suite |
 | `README.md`, `RELEASE_NOTES.md` | What Delivery shipped |
 | `qc-audit.md` | Three audit rounds, four findings — the interesting document |
-| `ORGANIZATION-snapshot.md` | Roster, strike ledger, tribunal record, praise ledger as they stood at completion |
+| `ORGANIZATION-snapshot.md` | Roster, strike ledger, tribunal record, praise ledger at completion |
+
+### `bigfiles_2026_08` — v2, plain register, SKIRMISH muster, 10 tests
+
+The first run against the **installed plugin** rather than a vendored copy: added from the
+published marketplace, then decreed. Two teams instead of five, one gate instead of three.
+Its `qc-audit.md` records the moment that matters — Delivery's first draft of the release
+notes stated a test count that was never printed, and the hook refused the write, re-ran the
+suite, and returned the real output as its reason. The claim never reached disk.
 
 **What QC caught**, before any of it reached a reader: a README worked-example whose printed
 output had been hand-edited rather than captured (`./b.renamed` where the program prints

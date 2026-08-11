@@ -1,3 +1,4 @@
+<!-- truth-lint: historical -->
 # renamer — Release Notes (Cycle 3)
 
 ## What Ships

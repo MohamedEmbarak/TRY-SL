@@ -1,3 +1,4 @@
+<!-- truth-lint: historical -->
 # renamer
 
 Single-file Python 3.11 stdlib CLI that batch-renames files (and optionally
