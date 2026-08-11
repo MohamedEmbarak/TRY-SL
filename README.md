@@ -30,13 +30,17 @@ kneeling line. Identical mechanism, different vocabulary.
 
 ## The archives: `runs/`
 
-Two completed decrees, kept because they are evidence rather than decoration. Both suites
-still execute from where they sit — run them yourself:
+Three completed decrees, kept because they are evidence rather than decoration. All three
+suites still execute from where they sit — run them yourself:
 
 ```bash
 python3 -m unittest runs.renamer_2026_08.test_renamer
 python3 -m unittest runs.bigfiles_2026_08.test_bigfiles
+python3 -m unittest runs.loc_2026_08.test_loc
 ```
+
+CI runs each archive separately and asserts its own count, because a whole-repo run would sum
+them and make every per-archive figure look false.
 
 ### `renamer_2026_08` — v1, lore register, three cycles, 26 tests
 
@@ -69,6 +73,27 @@ That run is also *why the plugin has hooks*. QC caught the fabricated example by
 diligent — which is not a guarantee. The `truth-lint` hook now re-runs the suite against
 anything written and blocks figures that do not reproduce, so that particular failure is no
 longer possible rather than merely catchable.
+
+### `loc_2026_08` — v2, plain register, SKIRMISH muster, 9 tests
+
+A CLI counting lines by file extension. Shipped inside its one cycle with no defect charged to
+either agent — and the interesting document is the snapshot, not the audit.
+
+**What went wrong belonged to the orchestrator.** The dispatch asked for a test suite without
+asking for one the enforcement layer could run. Dev wrote pytest function-style tests; the
+ship-gate hook verifies with `python3 -m unittest`, which collected zero of them and wrote
+`QA-PASS: hook-verified: Ran 0, skipped 0`. A green gate over a run that executed nothing.
+
+Nobody lied. Dev's `9 passed` was true under pytest and QC reproduced it independently. The
+hole was in the instruction, and neither agent was positioned to see it. One rework round
+converted the suite to `unittest.TestCase`; both runners now execute all nine cases and the
+gate reads `Ran 9, skipped 0`.
+
+Set beside the other two, it completes a set. The renamer run shows a fabrication caught after
+it shipped. The bigfiles run shows one refused before it reached disk. This one shows the
+third failure mode and the quietest: a verifier that passes because it found nothing to check.
+Its `qc-audit.md` also carries an appended correction — QC stated two line counts one too
+high — recorded rather than edited away, and not charged.
 
 ## History
 

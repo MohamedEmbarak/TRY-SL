@@ -50,6 +50,21 @@ jobs:
           print(f"bigfiles: Ran {ran}, OK")
           PY
 
+      - name: loc_2026_08 — expect 9 tests, OK
+        run: |
+          python3 - <<'PY'
+          import re, subprocess, sys
+          p = subprocess.run(["python3","-m","unittest","runs.loc_2026_08.test_loc"],
+                             capture_output=True, text=True)
+          out = p.stdout + p.stderr
+          ran = int(re.search(r"Ran (\d+) tests", out).group(1))
+          ok = bool(re.search(r"^OK", out, re.M))
+          if (ran, ok) != (9, True):
+              print(f"::error::loc archive: expected 9 passing, got ran={ran} ok={ok}")
+              sys.exit(1)
+          print(f"loc: Ran {ran}, OK")
+          PY
+
       - name: Archives must import only what exists
         run: |
           python3 - <<'PY'

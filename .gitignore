@@ -31,3 +31,7 @@ build/
 # The plugin writes these into .claude/sl/ and gitignores them there too;
 # this is belt and braces.
 .claude/sl/
+
+# Worktrees the harness creates for isolated agent runs — a full second
+# checkout of this repo, not content.
+.claude/worktrees/
