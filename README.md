@@ -11,13 +11,13 @@ plugin's hooks active in a project — and the preserved artifacts of the first 
 
 ```
 /plugin marketplace add MohamedEmbarak/Supreme-Leader
-/plugin install supreme-leader@embarak
+/plugin install sl@embarak
 ```
 
 Then open this repo in Claude Code and issue a decree:
 
 ```
-/supreme-leader:decree Add a --dry-run flag to the renamer, with tests. 1 cycle.
+/sl:decree Add a --dry-run flag to the renamer, with tests. 1 cycle.
 ```
 
 The orchestrator triages the muster, seats the teams on first use, and dispatches. Artifacts
@@ -25,7 +25,7 @@ land in `deliverables/`. The hooks are live the whole time: a test figure that d
 reproduce is blocked at write time, an unresolvable import cannot be committed to a
 deliverable, and the turn cannot end while the ship gates are missing or stale.
 
-`/supreme-leader:lore on` if you want the tyrant back — directorates, souls, tribunals, the
+`/sl:lore on` if you want the tyrant back — directorates, souls, tribunals, the
 kneeling line. Identical mechanism, different vocabulary.
 
 ## The archives: `runs/`
